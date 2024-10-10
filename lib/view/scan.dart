@@ -1,16 +1,15 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zikrabyte/controller/imagecontroller.dart';
 import 'package:zikrabyte/theme/theme.dart';
 import 'package:zikrabyte/view/result.dart';
 
-// ignore: use_key_in_widget_constructors
 class ScanPage extends StatelessWidget {
   final ImageController imageController = Get.put(ImageController());
+
+  // ignore: use_super_parameters
+  ScanPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +80,7 @@ class ScanPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.credit_card, // 
+            Icons.credit_card,
             size: 80,
             color: Colors.white.withOpacity(0.8),
           ),
@@ -102,13 +101,6 @@ class ScanPage extends StatelessWidget {
               color: Colors.white.withOpacity(0.7),
             ),
           ),
-          Text(
-            'Coming soon ...',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.white.withOpacity(0.7),
-            ),
-          ), 
         ],
       ),
     );
@@ -147,8 +139,7 @@ class ScanPage extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        backgroundColor:
-            isOutlined ? Colors.transparent : AppColors.accent,
+        backgroundColor: isOutlined ? Colors.transparent : AppColors.accent,
         side: isOutlined
             ? const BorderSide(color: Colors.white, width: 2)
             : null,
@@ -177,11 +168,59 @@ class ScanPage extends StatelessWidget {
     );
   }
 
-  Future<void> _processImage(Future<String> Function() imageFunction) async {
-    String result = await imageFunction();
-    if (result.isNotEmpty) {
-      Get.to(() => ResultPage(extractedText: result));
+  Future<void> _processImage(Future<ImageResult> Function() imageFunction) async {
+    try {
+      // ignore: unused_local_variable
+      final loadingDialog = _showLoadingDialog();
+      final result = await imageFunction();
+      Get.back(); // Close loading dialog
+
+      if (result.success && result.text.isNotEmpty) {
+        Get.to(() => ResultPage(extractedText: result.text));
+      } else {
+        _showErrorDialog(result.error ?? 'Failed to process image');
+      }
+    } catch (e) {
+      _showErrorDialog('An unexpected error occurred');
     }
   }
-}
- 
+
+  void _showLoadingDialog() {
+    Get.dialog(
+      // ignore: deprecated_member_use
+      WillPopScope(
+        onWillPop: () async => false,
+        child: const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    Get.dialog(
+      AlertDialog(
+        title: Text(
+          'Error',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'OK',
+              style: GoogleFonts.poppins(color: AppColors.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+} 
