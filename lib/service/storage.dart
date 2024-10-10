@@ -3,9 +3,10 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zikrabyte/visitingcard.dart';
+import 'package:zikrabyte/model/visitingcard.dart';
 
 class StorageService {
+  // ignore: constant_identifier_names
   static const String CARDS_KEY = 'visiting_cards';
 
   Future<List<VisitingCard>> getCards() async {

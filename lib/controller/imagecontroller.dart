@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:zikrabyte/ocrservice.dart';
+import 'package:zikrabyte/service/ocrservice.dart';
 
 class ImageController extends GetxController {
   final ImagePicker _picker = ImagePicker();
